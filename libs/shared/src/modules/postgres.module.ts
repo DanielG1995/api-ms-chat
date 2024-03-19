@@ -15,7 +15,7 @@ import { UserEntity } from 'apps/auth/src/user.entity';
 
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([UserEntity])
+    
   ],
 })
 export class PostgresDBModule { }
