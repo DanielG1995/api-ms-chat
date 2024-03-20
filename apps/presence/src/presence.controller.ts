@@ -9,7 +9,6 @@ export class PresenceController {
   constructor(
     private readonly presenceService: PresenceService,
     private readonly sharedService: SharedService,
-    private readonly authGuard: AuthGuard
   ) { }
 
 

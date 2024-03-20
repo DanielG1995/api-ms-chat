@@ -19,16 +19,16 @@ export class AppController {
   @UseGuards(AuthGuard)
   @Get('/presence')
   async getPresence() {
-    return await firstValueFrom(this.presenceService.send({
+    return this.presenceService.send({
       cmd: 'presence'
-    }, {}))
+    }, {})
   }
 
   @Post()
   async createUser() {
-    return await firstValueFrom(this.authService.send({
+    return this.authService.send({
       cmd: 'create-user'
-    }, {}))
+    }, {})
   }
 
 
@@ -38,13 +38,13 @@ export class AppController {
     @Body('email') email: string,
     @Body('password') password: string,
   ) {
-    return await firstValueFrom(this.authService.send({
+    return this.authService.send({
       cmd: 'register'
     }, {
       name,
       email,
       password
-    }))
+    })
   }
 
   @Post('/auth/login')
@@ -52,12 +52,12 @@ export class AppController {
     @Body('email') email: string,
     @Body('password') password: string,
   ) {
-    return await firstValueFrom(this.authService.send({
+    return this.authService.send({
       cmd: 'login'
     }, {
       email,
       password
-    }))
+    })
   }
 
 }

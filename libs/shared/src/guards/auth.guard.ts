@@ -9,16 +9,15 @@ export class AuthGuard implements CanActivate {
         if (context.getType() !== 'http') {
             return false
         }
-        const authHeader = context.switchToHttp().getRequest().headers[
-            'authorization'
-        ] as string
+        const request = context.switchToHttp().getRequest();
+
+        const authHeader = request.headers['authorization'];
 
         if (!authHeader) return false
 
-        const authHeaderParams = authHeader.split(' ')
+        const authHeaderParams = (authHeader as string).split(' ')
         if (authHeaderParams.length !== 2) return false
         const [, jwt] = authHeaderParams
-        console.log('JWT FINALY',jwt)
         return this.authService.send({ cmd: 'verify-jwt' }, { jwt }).pipe(
             switchMap(({ exp }) => {
                 if (!exp) return of(false)

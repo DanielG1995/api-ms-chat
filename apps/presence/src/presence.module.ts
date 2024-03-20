@@ -7,11 +7,8 @@ import { AuthGuard } from '@app/shared';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: './.env'
-    }),
-    SharedModule
+  
+    SharedModule.registerRmq('AUTH_SERVICE', process.env.RABBITMQ_AUTH_QUEUE),
   ],
   controllers: [PresenceController],
   providers: [PresenceService],

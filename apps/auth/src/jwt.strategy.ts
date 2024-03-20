@@ -6,19 +6,15 @@ import { JwtRequest } from "./jwt-request.interface";
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor() {
         super({
-            jwtFromRequest: ExtractJwt.fromExtractors(
-                [
-                    (request: JwtRequest) => {
-                        return request?.jwt
-                    }
-                ]
-            ),
-            ignoreExpiration: false,
-            secretOrKey: process.env.JWT_SECRET
-
-        })
-
-    }
+          jwtFromRequest: ExtractJwt.fromExtractors([
+            (request: JwtRequest) => {
+              return request?.jwt;
+            },
+          ]),
+          ignoreExpiration: false,
+          secretOrKey: process.env.JWT_SECRET,
+        });
+      }
 
     async validate(payload:any){
         return {...payload}
