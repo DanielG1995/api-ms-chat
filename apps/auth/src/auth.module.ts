@@ -11,6 +11,7 @@ import { JwtGuard } from './jwt.guard';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersRepository } from '@app/shared/repositories/users.repository';
 import { FriendRequestsRepository } from '@app/shared/repositories/friend-requests.repository';
+import { FriendRequestEntity } from '@app/shared/entities/friend-request.entity';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { FriendRequestsRepository } from '@app/shared/repositories/friend-reques
     }),
     SharedModule,
     PostgresDBModule,
-    TypeOrmModule.forFeature([UserEntity])
+    TypeOrmModule.forFeature([UserEntity, FriendRequestEntity])
   ],
   controllers: [AuthController],
   providers: [JwtGuard, JwtStrategy,

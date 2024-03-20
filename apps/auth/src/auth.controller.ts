@@ -67,18 +67,17 @@ export class AuthController {
   @MessagePattern({ cmd: 'add-friend' })
   async addFriendResponse(
     @Ctx() ctx: RmqContext,
-    @Payload() payload: { userId: number },
-    friendId: number
+    @Payload() payload: { userId: number; friendId: number },
   ) {
     this.sharedService.acknowledgeMessage(ctx)
-    return this.authService.addFriend(payload.userId, friendId)
+    return this.authService.addFriend(payload.userId, payload.friendId)
   }
 
   @MessagePattern({ cmd: 'get-friends' })
   async getFriendsResponse(
     @Ctx() ctx: RmqContext,
     @Payload() payload: { userId: number },
-    
+
   ) {
     this.sharedService.acknowledgeMessage(ctx)
     return this.authService.getFriends(payload.userId)

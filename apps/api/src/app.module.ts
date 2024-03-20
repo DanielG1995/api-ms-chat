@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from '@app/shared/modules/shared.module';
 import { JwtGuard } from 'apps/auth/src/jwt.guard';
@@ -18,9 +17,7 @@ import { JwtGuard } from 'apps/auth/src/jwt.guard';
 
   controllers: [AppController],
   providers: [
-    AppService,
     JwtGuard
-
   ],
 })
 export class AppModule { }

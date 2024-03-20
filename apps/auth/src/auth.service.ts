@@ -108,7 +108,7 @@ export class AuthService implements AuthServiceInterface {
   async addFriend(userId: number, friendId: number): Promise<FriendRequestEntity> {
     const creator = await this.findById(userId)
     const receiver = await this.findById(friendId)
-
+    console.log(creator, receiver)
     return await this.friendsRequestRepository.save({
       creator,
       receiver
