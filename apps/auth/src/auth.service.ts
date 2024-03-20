@@ -1,36 +1,38 @@
-import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt'
 
-import { UserEntity } from '../../../libs/shared/src/entities/user.entity';
+import { FriendRequestsRepositoryInterface, UserEntity, UserJwt } from '@app/shared';
 import { NewUserDTO } from './dtos/new-user.dto';
 import { LoginDTO } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { AuthServiceInterface } from './interfaces/auth.service.interface';
+import { FriendRequestEntity } from '@app/shared/entities/friend-request.entity';
+import { FriendRequestsRepository } from '@app/shared/repositories/friend-requests.repository';
+import { UserRepositoryInterface } from '@app/shared/interfaces/users.repository.interface';
 
 
 @Injectable()
 export class AuthService implements AuthServiceInterface {
   constructor(
     @Inject('UsersRepositoryInterface')
-    private readonly userRepository: Repository<UserEntity>,
+    private readonly userRepository: UserRepositoryInterface,
+    @Inject('FriendRequestsRepositoryInterface')
+    private readonly friendsRequestRepository: FriendRequestsRepositoryInterface,
     private readonly jwtService: JwtService
   ) { }
   getUserById(id: number): Promise<UserEntity> {
     throw new Error('Method not implemented.');
   }
-  findById(id: number): Promise<UserEntity> {
-    throw new Error('Method not implemented.');
-  }
 
 
   async getUsers(): Promise<UserEntity[]> {
-    return this.userRepository.find()
+    return this.userRepository.findAll()
   }
 
   async findByEmail(email: string): Promise<UserEntity> {
-    return this.userRepository.findOne({
+    return this.userRepository.findByCondition({
       where: { email },
       select: ['id', 'name', 'email', 'password']
     })
@@ -57,7 +59,7 @@ export class AuthService implements AuthServiceInterface {
     return bcrypt.compare(password, hashedPassword)
   }
 
-  async validateUser(email, password) {
+  async validateUser(email: string, password: string) {
     const existingUser = await this.findByEmail(email)
     if (!existingUser) return null
     const passwordMatch = await this.passwordMatch(password, existingUser.password)
@@ -88,6 +90,40 @@ export class AuthService implements AuthServiceInterface {
     } catch (error) {
       throw new UnauthorizedException()
     }
+  }
+
+  async findById(id: number): Promise<UserEntity> {
+    return this.userRepository.findOneById(id)
+  }
+
+  async getUserFromHeader(jwt: string): Promise<UserJwt> {
+    if (!jwt) return;
+    try {
+      return this.jwtService.decode(jwt) as UserJwt
+    } catch (error) {
+      throw new BadRequestException()
+    }
+  }
+
+  async addFriend(userId: number, friendId: number): Promise<FriendRequestEntity> {
+    const creator = await this.findById(userId)
+    const receiver = await this.findById(friendId)
+
+    return await this.friendsRequestRepository.save({
+      creator,
+      receiver
+    })
+
+  }
+
+  async getFriends(user: number): Promise<FriendRequestEntity[]> {
+    const creator = await this.userRepository.findOneById(user)
+    return await this.friendsRequestRepository.findWithRelations(
+      {
+        where: [{ creator }, { receiver: creator }],
+        relations: ['creator', 'receiver']
+      }
+    )
   }
 
 }

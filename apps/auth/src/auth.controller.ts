@@ -54,4 +54,33 @@ export class AuthController {
     this.sharedService.acknowledgeMessage(ctx)
     return this.authService.verifyJwt(payload.jwt)
   }
+
+  @MessagePattern({ cmd: 'decode-jwt' })
+  async decodeJwt(
+    @Ctx() ctx: RmqContext,
+    @Payload() payload: { jwt: string }
+  ) {
+    this.sharedService.acknowledgeMessage(ctx)
+    return this.authService.getUserFromHeader(payload.jwt)
+  }
+
+  @MessagePattern({ cmd: 'add-friend' })
+  async addFriendResponse(
+    @Ctx() ctx: RmqContext,
+    @Payload() payload: { userId: number },
+    friendId: number
+  ) {
+    this.sharedService.acknowledgeMessage(ctx)
+    return this.authService.addFriend(payload.userId, friendId)
+  }
+
+  @MessagePattern({ cmd: 'get-friends' })
+  async getFriendsResponse(
+    @Ctx() ctx: RmqContext,
+    @Payload() payload: { userId: number },
+    
+  ) {
+    this.sharedService.acknowledgeMessage(ctx)
+    return this.authService.getFriends(payload.userId)
+  }
 }
