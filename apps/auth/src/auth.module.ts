@@ -15,10 +15,7 @@ import { FriendRequestEntity } from '@app/shared/entities/friend-request.entity'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: './.env'
-    }),
+  
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {

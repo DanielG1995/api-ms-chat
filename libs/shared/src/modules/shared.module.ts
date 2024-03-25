@@ -23,7 +23,7 @@ export class SharedModule {
         useFactory: (configService: ConfigService) => {
           const USER = configService.get('RABBITMQ_USER');
           const PASSWORD = configService.get('RABBITMQ_PASS');
-          const HOST = configService.get('RABBITMQ_HOST');
+          const HOST =configService.get('RABBITMQ_HOST');
 
           return ClientProxyFactory.create({
             transport: Transport.RMQ,

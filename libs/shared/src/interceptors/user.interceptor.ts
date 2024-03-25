@@ -4,7 +4,7 @@ import { AuthService } from "apps/auth/src/auth.service";
 import { Observable, catchError, switchMap } from "rxjs";
 
 @Injectable()
-export class UserInterceptor implements NestInterceptor {
+export class    UserInterceptor implements NestInterceptor {
 
     constructor(
         @Inject('AUTH_SERVICE')

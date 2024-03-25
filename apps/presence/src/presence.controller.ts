@@ -8,14 +8,14 @@ import { SharedService, AuthGuard } from '@app/shared';
 export class PresenceController {
   constructor(
     private readonly presenceService: PresenceService,
-    private readonly sharedService: SharedService,
+    //private readonly sharedService: SharedService,
   ) { }
 
 
-  @MessagePattern({ cmd: 'presence' })
-  async getUser(@Ctx() ctx: RmqContext) {
-    this.sharedService.acknowledgeMessage(ctx)
+  // @MessagePattern({ cmd: 'presence' })
+  // async getUser(@Ctx() ctx: RmqContext) {
+  //   this.sharedService.acknowledgeMessage(ctx)
 
-    return this.presenceService.getHello()
-  }
+  //   return this.presenceService.getHello()
+  // }
 }

@@ -76,6 +76,7 @@ export class AuthService implements AuthServiceInterface {
     }
     const token = await this.jwtService.signAsync({
       user
+      
     })
 
     return { token }
@@ -104,7 +105,6 @@ export class AuthService implements AuthServiceInterface {
       throw new BadRequestException()
     }
   }
-
   async addFriend(userId: number, friendId: number): Promise<FriendRequestEntity> {
     const creator = await this.findById(userId)
     const receiver = await this.findById(friendId)

@@ -11,9 +11,9 @@ async function bootstrap() {
   const sharedService = app.get(SharedService)
 
   const queue = configService.get('RABBITMQ_PRESENCE_QUEUE')
-  app.connectMicroservice<MicroserviceOptions>(sharedService.getRmqOptions(queue))
+  app.connectMicroservice<MicroserviceOptions>(sharedService.getRmqOptions(queue, 'http://localhost:5672'))
 
   await app.startAllMicroservices();
-  await app.listen(6000)
+  await app.listen(1000)
 }
 bootstrap();
