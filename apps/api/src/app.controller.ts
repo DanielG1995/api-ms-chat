@@ -57,9 +57,16 @@ export class AppController {
   }
 
   @Get('/auth/verify-token')
+  @UseInterceptors(UserInterceptor)
   @UseGuards(AuthGuard)
-  async verifyToken() {
-    return true
+  async verifyToken(@Req() req: UserRequest,) {
+    if (!req?.user) {
+      throw new BadRequestException()
+    }
+    return {
+      hasAuth: true,
+      user: req.user
+    }
   }
 
   @UseGuards(AuthGuard)

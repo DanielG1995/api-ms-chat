@@ -5,7 +5,7 @@ FROM node:alpine
 WORKDIR /usr/src/app
 
 # Copia el directorio dist de producción de api desde la raíz del proyecto
-COPY ../../dist/apps/api ./dist
+COPY ../../dist/apps/chat ./dist
 COPY ./package.json ./
 # Instala solo las dependencias necesarias para producción
 RUN npm install --production

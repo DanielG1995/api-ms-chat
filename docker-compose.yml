@@ -1,16 +1,26 @@
-version : '3'
+version: '3'
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     hostname: rabbitmq
-    volumes:
-      - /var/lib/rabbitmq
     ports:
       - '5672:5672'
       - '15672:15672'
     env_file:
-     - .env
+      - .env
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    env_file:
+      - .env
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+
   auth:
     build:
       context: ./
@@ -20,55 +30,41 @@ services:
     depends_on:
       - rabbitmq
       - postgres
-    volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
-      - /usr/src/app/node_modules
-    command: npm run start:dev auth 
-  presence:
-    build:
-      context: ./
-      dockerfile: ./apps/presence/Dockerfile
     ports:
-     - 1000:1000
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - postgres
-    volumes:
-      - .:/usr/src/app 
-      - /usr/src/app/node_modules
-    command: npm run start:dev presence    
+      - '3000:3000'
+
   api:
     build:
       context: ./
       dockerfile: ./apps/api/Dockerfile
-    ports:
-      - '4000:5000'
     env_file:
       - .env
     depends_on:
       - rabbitmq
       - auth
       - presence
-    volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
-      - /usr/src/app/node_modules
-    command: npm run start:dev api  
-  postgres:
-    image: postgres
+    ports:
+      - '4000:5000'
+
+  presence:
+    build:
+      context: ./
+      dockerfile: ./apps/presence/Dockerfile
     env_file:
       - .env
+    depends_on:
+      - rabbitmq
+      - postgres
     ports:
-      - '5432:5432'
-    volumes:
-      - ./db/data:/var/lib/postgresql/data
+      - '1000:1000'
 
-  # postgres_admin:
-  #   image: dpage/pgadmin4
-  #   depends_on:
-  #     - postgres
+  # chat:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./apps/chat/Dockerfile
   #   env_file:
   #     - .env
+  #   depends_on:
+  #     - rabbitmq
   #   ports:
-  #     - '15432:80'
+  #     - '2000:2000'

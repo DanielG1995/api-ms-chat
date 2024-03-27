@@ -1,6 +1,13 @@
-FROM node
-WORKDIR /usr/src/app
-COPY package*json .
-RUN npm install
+# Utiliza una imagen base adecuada para tu aplicación Node.js
+FROM node:alpine
 
-COPY . .
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /usr/src/app
+
+# Copia el directorio dist de producción de api desde la raíz del proyecto
+COPY ../../dist/apps/presence ./dist
+COPY ./package.json ./
+# Instala solo las dependencias necesarias para producción
+RUN npm install --production
+# Comando para iniciar la aplicación
+CMD ["node", "./dist/main.js"]
