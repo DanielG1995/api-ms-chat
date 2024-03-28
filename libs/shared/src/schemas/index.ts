@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 // Definición del esquema para los mensajes
 export const Message = new mongoose.Schema({
@@ -6,10 +6,10 @@ export const Message = new mongoose.Schema({
         type: String, // Definir el campo _id como String
         default: () => new mongoose.Types.ObjectId().toString() // Generar un ID único como string
     },
-    senderId: {
+    sendId: {
         type: Number
     },
-    timestamp: {
+    date: {
         type: Date,
         default: Date.now,
         required: true
@@ -17,7 +17,11 @@ export const Message = new mongoose.Schema({
     message: {
         type: String,
         required: true
-    }
+    },
+    conversationId: {
+        type: Schema.Types.ObjectId,
+        ref: "Conversation",
+    },
 });
 
 // Definición del esquema para las conversaciones
@@ -27,7 +31,10 @@ export const Conversation = new mongoose.Schema({
         default: () => new mongoose.Types.ObjectId().toString() // Generar un ID único como string
     },
     participants: [{
-        type: Number,
+        type: {
+            name: String,
+            id: Number
+        },
 
     }],
     lastMessage: Message // Referencia al esquema de mensajes para almacenar los mensajes de la conversación

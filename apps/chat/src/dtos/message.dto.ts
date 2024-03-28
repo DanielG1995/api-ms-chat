@@ -1,5 +1,7 @@
 export class CreateMessageDTO {
+    sendId:number
+    message:string
     date: Date
-    senderId: number
-    message: string
+    friendId:number
+    conversationId:string
 }

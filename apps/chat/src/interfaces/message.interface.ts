@@ -3,4 +3,5 @@ class Message{
     message:string
     date: Date
     friendId:number
+    conversationId:string
 }

@@ -1,10 +1,16 @@
 export interface Message extends Document {
     readonly message: string;
-    readonly from: number;
+    readonly sendId: number;
     readonly date: Date;
+    readonly conversationId: string
 }
 
 export interface Conversation extends Document {
     readonly lastMessage: Message;
-    readonly participants: number[];
+    readonly participants: Participant[];
+}
+
+export interface Participant {
+    name: String,
+    id: Number
 }

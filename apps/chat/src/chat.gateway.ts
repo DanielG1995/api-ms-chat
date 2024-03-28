@@ -16,9 +16,9 @@ export class ChatGateway
         @Inject(CACHE_MANAGER) private readonly cache: Cache,
         private readonly chatService: ChatService
     ) { }
-    // async onModuleInit() {
-    //     await this.cache.reset()
-    // }
+    async onModuleInit() {
+        await this.cache.reset()
+    }
 
     @WebSocketServer()
     server: Server
@@ -28,7 +28,7 @@ export class ChatGateway
     }
 
 
-    async handleConnection(socket: Socket) {
+    async handleConnection(@ConnectedSocket() socket: Socket) {
         const jwt = socket.handshake.headers.authorization ?? null
         if (!jwt) {
             this.handleDisconnect(socket)
@@ -44,7 +44,12 @@ export class ChatGateway
         // socket.data.user = user
         const user = await this.decodeJWT(jwt)
         socket.data.user = user.user;
-        const friends = [user.user.id === 1 ? 2 : 1]
+        const mockFriends = {
+            1: [{ name: 'Alejandro', id: 2 }, { name: 'Gallardo', id: 3 }],
+            2: [{ name: 'Daniel', id: 1 }, { name: 'Gallardo', id: 3 }],
+            3: [{ name: 'Alejandro', id: 2 }, { name: 'Daniel', id: 1 }]
+        }
+        const friends = mockFriends[user.user.id]
         await this.setConversationUser(socket); //cache
         await this.createConversations(socket, user.id, friends); //crea conversaciones con amigos
         // await this.getConversations(socket); //obtiene las conversaciones
@@ -71,18 +76,24 @@ export class ChatGateway
 
 
     @SubscribeMessage('new-message')
-    async getFriendsList(@ConnectedSocket() client: Socket, @MessageBody() message: Message) {
+    async newMessage(@ConnectedSocket() client: Socket, @MessageBody() messageSocket: Message) {
         if (!client.data?.user) return;
-        const user = await this.cache.get(`conversationUser${message.friendId}`)
+        const { conversationId, friendId, date, message, sendId } = messageSocket
+        const messageDB = await this.chatService.createMessage({ conversationId, friendId, date, message, sendId })
+        if (messageDB) {
+            messageSocket.date = messageDB.date
+            this.chatService.updateLastMessage(conversationId, messageDB)
+        }
+        const user = await this.cache.get(`conversationUser${messageSocket.friendId}`)
         const friend = user as ActiveUser
-        console.log(`Message to ${message.friendId}`)
+        console.log(`Message to ${messageSocket.friendId}, ${messageSocket.message}, ${client.id}`)
         if (!friend) return;
-        this.server.to(friend.socketId).emit('message', message)
+        this.server.to(friend.socketId).emit('message', messageDB)
 
     }
 
     @SubscribeMessage('getConversations')
-    async getConversations(socket: Socket) {
+    async getConversations(@ConnectedSocket() socket: Socket) {
         const { user } = socket.data;
 
         if (!user) return;
@@ -91,9 +102,18 @@ export class ChatGateway
         this.server.to(socket.id).emit('getAllConversations', conversations);
     }
 
-    private async createConversations(socket: Socket, userId: number, friends: number[]) {
+    @SubscribeMessage('get-messages')
+    async getMessages(@ConnectedSocket() socket: Socket, @MessageBody() conversationId: string) {
+        const { user } = socket.data;
+        if (!user) return;
+        console.log('get-messages', conversationId)
+        const messages = await this.chatService.getMessagesByConversation(conversationId)
+        this.server.to(socket.id).emit('get-messages', messages);
+    }
+
+    private async createConversations(socket: Socket, userId: number, friends: Record<string, any>[]) {
         // const ob2$ = this.authService.send(
-        //     {
+        //     
         //         cmd: 'get-friends-list',
         //     },
         //     {
@@ -106,7 +126,7 @@ export class ChatGateway
         // );
 
         friends.forEach(async (friend) => {
-            await this.chatService.createConversation(socket.data.user.id, friend);
+            await this.chatService.createConversation({ id: socket.data.user.id, name: socket.data.user.name }, friend);
         });
     }
 
